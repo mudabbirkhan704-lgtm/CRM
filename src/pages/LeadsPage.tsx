@@ -5,7 +5,7 @@ import {
   LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS,
   CALL_STATUSES, CALL_STATUS_LABELS, CALL_STATUS_COLORS,
   COUNTRIES, INTAKES, STUDY_LEVELS,
-  LEAD_LABELS, LEAD_LABEL_COLORS, ENGLISH_TEST_TYPES,
+  LEAD_LABELS, LEAD_LABEL_COLORS,
 } from '@/lib/constants';
 import type { Lead, LeadStatus, CallStatus, LeadSource, Profile, Student, Task } from '@/lib/types';
 import { generateId, formatDate, cn } from '@/lib/utils';
@@ -617,51 +617,26 @@ export function LeadDetailPage() {
         </div>
 
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-[minmax(180px,0.8fr)_170px_minmax(280px,1.4fr)] gap-4 items-start">
-          <div className="rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2.5 min-h-[96px]">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Education Summary</p>
-            <div className="mt-2 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-gray-700">
-                <span className="font-semibold text-gray-400">Degree</span>
-                <ChevronRight className="w-3 h-3 text-blue-400" />
-                <span className="font-semibold truncate">{lead.last_degree || 'Not provided'}</span>
-              </div>
-              <div className="ml-4 flex items-center gap-1.5 text-xs text-gray-700">
-                <span className="font-semibold text-gray-400">Completed</span>
-                <ChevronRight className="w-3 h-3 text-blue-400" />
-                <span className="font-semibold">{lead.last_degree_year || 'Not provided'}</span>
-              </div>
-              <div className="ml-8 flex items-center gap-1.5 text-xs text-gray-700">
-                <span className="font-semibold text-gray-400">Score</span>
-                <ChevronRight className="w-3 h-3 text-blue-400" />
-                <span className="font-semibold">{lead.last_degree_score || 'Not provided'}</span>
-              </div>
-              <div className="ml-12 flex items-center gap-1.5 text-xs text-gray-700">
-                <span className="font-semibold text-gray-400">English</span>
-                <ChevronRight className="w-3 h-3 text-blue-400" />
-                <span className="font-semibold truncate">
-                  {lead.english_test_type
-                    ? `${ENGLISH_TEST_TYPES.find((t) => t.value === lead.english_test_type)?.label ?? lead.english_test_type}${lead.english_test_score ? ': ' + lead.english_test_score : ''}`
-                    : 'Not provided'}
-                </span>
-              </div>
-            </div>
+          <div className="rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Label Stage</p>
+            <select
+              value={lead.labels?.[0] ?? ''}
+              onChange={(e) => setLabel(e.target.value)}
+              className={cn('mt-1 w-full bg-transparent text-sm font-semibold focus:outline-none cursor-pointer', lead.labels?.[0] ? LEAD_LABEL_COLORS[lead.labels[0]].split(' ')[1] : 'text-gray-500')}
+            >
+              <option value="">No label</option>
+              {LEAD_LABELS.map((label) => <option key={label} value={label}>{label}</option>)}
+            </select>
           </div>
 
-          <div className="space-y-1.5 pt-1">
+          <div className="space-y-1.5">
+            <div className={cn('flex items-center justify-between gap-2 rounded-md border px-2.5 py-1.5', lead.labels?.[0] ? LEAD_LABEL_COLORS[lead.labels[0]] : 'bg-gray-50 text-gray-500 border-gray-200')}>
+              <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70">Label</span>
+              <span className="text-xs font-semibold truncate">{lead.labels?.[0] || 'None'}</span>
+            </div>
             <div className={cn('flex items-center justify-between gap-2 rounded-md border px-2.5 py-1.5', CALL_STATUS_COLORS[lead.call_status ?? 'not_called'])}>
               <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70">Call</span>
               <span className="text-xs font-semibold truncate">{CALL_STATUS_LABELS[lead.call_status ?? 'not_called']}</span>
-            </div>
-            <div className={cn('flex items-center justify-between gap-2 rounded-md border px-2.5 py-1.5', lead.labels?.[0] ? LEAD_LABEL_COLORS[lead.labels[0]] : 'bg-gray-100 text-gray-500 border-gray-200')}>
-              <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70">Label</span>
-              <select
-                value={lead.labels?.[0] ?? ''}
-                onChange={(e) => setLabel(e.target.value)}
-                className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer max-w-[100px] truncate"
-              >
-                <option value="">No label</option>
-                {LEAD_LABELS.map((label) => <option key={label} value={label}>{label}</option>)}
-              </select>
             </div>
             <div className={cn('flex items-center justify-between gap-2 rounded-md border px-2.5 py-1.5', LEAD_STATUS_COLORS[lead.status])}>
               <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70">Lead</span>
@@ -747,17 +722,6 @@ export function LeadDetailPage() {
 
           {/* Call status selector with call counter badge */}
           <div className="flex items-center gap-2 ml-auto">
-            <div className="rounded-lg border border-gray-200 bg-gray-50/80 px-2.5 py-1.5 min-w-[150px]">
-              <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-400">Label Stage</p>
-              <select
-                value={lead.labels?.[0] ?? ''}
-                onChange={(e) => setLabel(e.target.value)}
-                className={cn('mt-0.5 w-full bg-transparent text-xs font-semibold focus:outline-none cursor-pointer', lead.labels?.[0] ? LEAD_LABEL_COLORS[lead.labels[0]].split(' ')[1] : 'text-gray-500')}
-              >
-                <option value="">No label</option>
-                {LEAD_LABELS.map((label) => <option key={label} value={label}>{label}</option>)}
-              </select>
-            </div>
             <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-xl shadow-sm">
               <PhoneCall className="w-4 h-4" />
               <span className="text-sm font-semibold">{lead.call_count ?? 0}</span>
@@ -844,9 +808,6 @@ export function LeadDetailPage() {
               <DetailField label="Last Degree" value={lead.last_degree} />
               <DetailField label="CGPA / Percentage" value={lead.last_degree_score} />
               <DetailField label="Year of Degree" value={lead.last_degree_year} />
-              <DetailField label="English Test" value={lead.english_test_type ? (ENGLISH_TEST_TYPES.find((t) => t.value === lead.english_test_type)?.label ?? lead.english_test_type) : null} />
-              <DetailField label="English Test Score" value={lead.english_test_score} />
-              <DetailField label="English Test Date" value={lead.english_test_date} />
               <DetailField label="Lead Source" value={sources.find((s) => s.id === lead.lead_source_id)?.name} />
               <DetailField label="Campaign" value={lead.campaign} />
               <DetailField label="Interested Country" value={lead.interested_country} />
@@ -1030,8 +991,6 @@ function LeadFormModal({ onClose, onSuccess, sources, counselors, lead }: {
     follow_up_date: lead?.follow_up_date ?? '',
     last_degree: lead?.last_degree ?? '', last_degree_score: lead?.last_degree_score ?? '',
     last_degree_year: lead?.last_degree_year ?? '',
-    english_test_type: lead?.english_test_type ?? '', english_test_score: lead?.english_test_score ?? '',
-    english_test_date: lead?.english_test_date ?? '',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1082,9 +1041,6 @@ function LeadFormModal({ onClose, onSuccess, sources, counselors, lead }: {
       last_degree: form.last_degree || null,
       last_degree_score: form.last_degree_score || null,
       last_degree_year: form.last_degree_year || null,
-      english_test_type: form.english_test_type || null,
-      english_test_score: form.english_test_score || null,
-      english_test_date: form.english_test_date || null,
     };
     if (isEdit && lead) {
       const { error } = await supabase.from('leads').update(payload).eq('id', lead.id);
@@ -1134,15 +1090,6 @@ function LeadFormModal({ onClose, onSuccess, sources, counselors, lead }: {
             <Input label="Last Degree" value={form.last_degree} onChange={(v) => set('last_degree', v)} placeholder="e.g. Bachelor of Science" />
             <Input label="CGPA / Percentage" value={form.last_degree_score} onChange={(v) => set('last_degree_score', v)} placeholder="e.g. 3.5 or 75%" />
             <Input label="Year of Degree" value={form.last_degree_year} onChange={(v) => set('last_degree_year', v)} placeholder="e.g. 2024" />
-          </div>
-        </div>
-
-        <div className="border-t border-gray-100 pt-4">
-          <p className="text-sm font-semibold text-gray-700 mb-3">English Proficiency Test</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Select label="Test Type" value={form.english_test_type} onChange={(v) => set('english_test_type', v)} placeholder="Select test" options={ENGLISH_TEST_TYPES} />
-            <Input label="Score" value={form.english_test_score} onChange={(v) => set('english_test_score', v)} placeholder="e.g. 7.5 or 85" />
-            <Input label="Test Date" value={form.english_test_date} onChange={(v) => set('english_test_date', v)} type="date" />
           </div>
         </div>
 
@@ -1324,9 +1271,6 @@ const FIELD_OPTIONS = [
   { key: 'last_degree', label: 'Last Degree' },
   { key: 'last_degree_score', label: 'CGPA / Percentage' },
   { key: 'last_degree_year', label: 'Year of Degree' },
-  { key: 'english_test_type', label: 'English Test Type' },
-  { key: 'english_test_score', label: 'English Test Score' },
-  { key: 'english_test_date', label: 'English Test Date' },
 ];
 
 function BulkUploadModal({ sources, counselors, onClose, onSuccess }: {
@@ -1405,9 +1349,6 @@ function BulkUploadModal({ sources, counselors, onClose, onSuccess }: {
         last_degree: getVal(row, 'last_degree') || null,
         last_degree_score: getVal(row, 'last_degree_score') || null,
         last_degree_year: getVal(row, 'last_degree_year') || null,
-        english_test_type: getVal(row, 'english_test_type') || null,
-        english_test_score: getVal(row, 'english_test_score') || null,
-        english_test_date: getVal(row, 'english_test_date') || null,
         assigned_counselor_id: assignedCounselor || null,
         status: 'new_lead', call_status: 'not_called',
         branch_id: profile?.branch_id ?? null, created_by: profile?.id,

@@ -17,7 +17,6 @@ import {
   GraduationCap, Search, Plus, ChevronLeft, ChevronRight,
   FileText, Upload, Pencil, Trash2, X, Filter, CheckCircle2,
   Building2, BookOpen, Calendar, User, Hash, Wallet, Award, MapPin,
-  List, LayoutGrid,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -41,7 +40,6 @@ export function ApplicationsPage() {
   const [total, setTotal] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'cards'>(() => localStorage.getItem('appsViewMode') === 'cards' ? 'cards' : 'list');
   const [stats, setStats] = useState<Record<string, number>>({});
   const pageSize = 20;
 
@@ -80,7 +78,6 @@ export function ApplicationsPage() {
 
   useEffect(() => { fetchApps(); }, [fetchApps]);
   useEffect(() => { fetchStats(); }, [fetchStats]);
-  useEffect(() => { localStorage.setItem('appsViewMode', viewMode); }, [viewMode]);
 
   const studentName = (id: string) => students.find((s) => s.id === id)?.name ?? 'Unknown';
   const studentNumber = (id: string) => students.find((s) => s.id === id)?.student_id ?? '—';
@@ -140,20 +137,10 @@ export function ApplicationsPage() {
               className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 p-1">
-              <button type="button" onClick={() => setViewMode('list')} className={cn('flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition', viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
-                <List className="w-3.5 h-3.5" /> List
-              </button>
-              <button type="button" onClick={() => setViewMode('cards')} className={cn('flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition', viewMode === 'cards' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
-                <LayoutGrid className="w-3.5 h-3.5" /> Cards
-              </button>
-            </div>
-            <Button variant="outline" size="md" onClick={() => setShowFilters(!showFilters)}>
-              <Filter className="w-4 h-4" /> Filters
-              {hasFilters ? <span className="w-2 h-2 bg-blue-500 rounded-full" /> : null}
-            </Button>
-          </div>
+          <Button variant="outline" size="md" onClick={() => setShowFilters(!showFilters)}>
+            <Filter className="w-4 h-4" /> Filters
+            {hasFilters ? <span className="w-2 h-2 bg-blue-500 rounded-full" /> : null}
+          </Button>
         </div>
         {showFilters && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3 pt-3 border-t border-gray-100">
@@ -194,7 +181,6 @@ export function ApplicationsPage() {
         ) : apps.length === 0 ? (
           <EmptyState icon={<GraduationCap className="w-7 h-7" />} title="No applications found" description="Create an application for a student." action={<Button onClick={() => setShowCreate(true)}><Plus className="w-4 h-4" /> New Application</Button>} />
         ) : (
-          viewMode === 'list' ? (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -228,32 +214,6 @@ export function ApplicationsPage() {
               </tbody>
             </table>
           </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
-              {apps.map((a) => (
-                <div key={a.id} onClick={() => navigate(`/applications/${a.id}`)} className="p-4 rounded-xl border border-gray-100 bg-white hover:shadow-md hover:border-gray-200 cursor-pointer transition group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shrink-0">
-                      <GraduationCap className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{a.university_name ?? '—'}</p>
-                      <p className="text-xs text-gray-500 truncate">{a.course ?? '—'} · {a.intake ?? '—'}</p>
-                    </div>
-                    <Badge className={APP_STATUS_COLORS[a.status]}>{APPLICATION_STATUS_LABELS[a.status]}</Badge>
-                  </div>
-                  <div className="mt-3 space-y-1 text-xs text-gray-500">
-                    <p className="flex items-center gap-1.5"><Hash className="w-3 h-3" /> {a.application_id}</p>
-                    <p className="flex items-center gap-1.5"><User className="w-3 h-3" /> {studentName(a.student_id)} ({studentNumber(a.student_id)})</p>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
-                    <Badge className={PRIORITY_COLORS[a.priority]}>{a.priority}</Badge>
-                    <span className="text-xs text-gray-400">{counselorName(a.created_by)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )
         )}
         {!loading && apps.length > 0 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">

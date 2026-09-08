@@ -86,9 +86,6 @@ export interface Lead {
   last_degree: string | null;
   last_degree_score: string | null;
   last_degree_year: string | null;
-  english_test_type: string | null;
-  english_test_score: string | null;
-  english_test_date: string | null;
   notes: string | null;
   follow_up_date: string | null;
   status: LeadStatus;

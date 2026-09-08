@@ -20,7 +20,6 @@ import {
   UserCheck, Search, Plus, ChevronLeft, ChevronRight,
   GraduationCap, BookOpen, FileText, Plane, Briefcase, Phone, Mail,
   Pencil, Trash2, ArrowRight, Upload, Clock, Filter, X, CheckCircle2,
-  List, LayoutGrid,
 } from 'lucide-react';
 
 export function StudentsPage() {
@@ -36,7 +35,6 @@ export function StudentsPage() {
   const [total, setTotal] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'cards'>(() => localStorage.getItem('studentsViewMode') === 'cards' ? 'cards' : 'list');
   const pageSize = 20;
 
   const fetchStudents = useCallback(async () => {
@@ -62,7 +60,6 @@ export function StudentsPage() {
   }, []);
 
   useEffect(() => { fetchStudents(); }, [fetchStudents]);
-  useEffect(() => { localStorage.setItem('studentsViewMode', viewMode); }, [viewMode]);
 
   const counselorName = (id: string | null) => counselors.find((c) => c.id === id)?.full_name ?? 'Unassigned';
 
@@ -127,7 +124,6 @@ export function StudentsPage() {
         ) : students.length === 0 ? (
           <EmptyState icon={<UserCheck className="w-7 h-7" />} title="No students found" description="Convert leads to mature students to see them here." />
         ) : (
-          viewMode === 'list' ? (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -167,32 +163,6 @@ export function StudentsPage() {
               </tbody>
             </table>
           </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
-              {students.map((s) => (
-                <div key={s.id} onClick={() => setSelectedId(s.id)} className="p-4 rounded-xl border border-gray-100 bg-white hover:shadow-md hover:border-gray-200 cursor-pointer transition group">
-                  <div className="flex items-center gap-3">
-                    <Avatar name={s.name} className="w-11 h-11 text-sm" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{s.name}</p>
-                      <p className="text-xs text-gray-400">{s.student_id}</p>
-                    </div>
-                    <Badge className={ADMISSION_STAGE_COLORS[s.admission_stage ?? 'draft']}>
-                      {ADMISSION_STAGE_LABELS[s.admission_stage ?? 'draft']}
-                    </Badge>
-                  </div>
-                  <div className="mt-3 space-y-1 text-xs text-gray-500">
-                    <p className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {s.email ?? '—'}</p>
-                    <p className="flex items-center gap-1.5"><Phone className="w-3 h-3" /> {s.phone ?? '—'}</p>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
-                    <span className="text-xs text-gray-400">{counselorName(s.assigned_counselor_id)}</span>
-                    <span className="text-xs text-gray-400">{formatDate(s.created_at)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )
         )}
         {!loading && students.length > 0 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
